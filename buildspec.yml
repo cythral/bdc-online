@@ -10,6 +10,7 @@ phases:
     commands:
       - export CLASSES_ADDRESS=https://classes.brekkedancecenter.com
       - npm run build
+      - ./deploy/create-config-files.sh
 
 artifacts:
   secondary-artifacts:
