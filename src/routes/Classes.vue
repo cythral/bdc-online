@@ -69,7 +69,7 @@
             flex-basis: 70%;
             flex-grow: 1;
             position: relative;
-            min-width: 350px;
+            min-width: 300px;
             
             iframe {
                 width: 100%;
