@@ -1,0 +1,222 @@
+Description: CICD pipeline for BDC Online
+Parameters: 
+  GithubToken: 
+    Type: String 
+    NoEcho: true
+    Description: OAuth token for the Github organization.  Needs read/write access to repos and repo hooks
+
+  GithubOwner:
+    Type: String
+    Description: Owner of the github repository to track
+
+  GithubRepo:
+    Type: String
+    Description: Name of the github repository to track
+
+  GithubBranch:
+    Type: String
+    Description: Name of the github branch to track
+
+Resources:
+  ArtifactStore:
+    Type: AWS::S3::Bucket
+
+  ArtifactStorePolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ArtifactStore
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: s3:*Object
+            Resource:
+              - !Sub arn:aws:s3:::${ArtifactStore}
+              - !Sub arn:aws:s3:::${ArtifactStore}/*
+            Principal:
+              AWS:
+                - !Ref AWS::AccountId
+                - !ImportValue cfn-metadata:DevAgentRoleArn
+                - !ImportValue cfn-metadata:ProdAgentRoleArn
+  
+  BuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub ${AWS::StackName}-build
+      ServiceRole: !ImportValue cfn-utilities:BuilderRoleArn
+      EncryptionKey: !ImportValue cfn-utilities:ArtifactKeyArn
+      Environment:
+        PrivilegedMode: true
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:2.0
+        ComputeType: BUILD_GENERAL1_SMALL
+        EnvironmentVariables:
+          - Name: ARTIFACT_STORE
+            Value: !Ref ArtifactStore
+        Type: LINUX_CONTAINER
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+
+  Webhook:
+    Type: AWS::CodePipeline::Webhook
+    Properties:
+      Authentication: GITHUB_HMAC
+      AuthenticationConfiguration:
+        SecretToken: !Ref GithubToken
+      Filters:
+        - JsonPath: $.ref
+          MatchEquals: "refs/heads/{Branch}"
+      TargetPipeline: !Ref Pipeline
+      TargetAction: Source
+      TargetPipelineVersion: !GetAtt Pipeline.Version
+      RegisterWithThirdParty: true
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Sub ${AWS::StackName}-pipeline 
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactStore
+        EncryptionKey: 
+          Id: !ImportValue cfn-utilities:ArtifactKeyArn
+          Type: KMS
+      RoleArn: !ImportValue cfn-utilities:MasterRoleArn
+      RestartExecutionOnUpdate: true
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Provider: GitHub
+                Owner: ThirdParty
+                Version: 1
+              OutputArtifacts:
+                - Name: sourceCode
+              Configuration:
+                Owner: !Ref GithubOwner
+                Repo: !Ref GithubRepo
+                Branch: !Ref GithubBranch
+                OAuthToken: !Ref GithubToken
+                PollForSourceChanges: false
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Provider: CodeBuild
+                Owner: AWS
+                Version: 1
+              InputArtifacts:
+                - Name: sourceCode
+              OutputArtifacts:
+                - Name: buildResults
+                - Name: siteFiles
+              Configuration:
+                ProjectName: !Ref BuildProject
+        - Name: Dev
+          Actions:
+            - Name: CloudFormation
+              RoleArn: !ImportValue cfn-metadata:DevAgentRoleArn
+              RunOrder: 1
+              ActionTypeId:
+                Category: Deploy
+                Provider: CloudFormation
+                Owner: AWS
+                Version: 1
+              InputArtifacts:
+                - Name: buildResults
+              OutputArtifacts:
+                - Name: devOutputs
+              Configuration:
+                StackName: bdc-online
+                TemplatePath: buildResults::bdc-online.template.yml
+                TemplateConfiguration: buildResults::bdc-online.dev.config.json
+                ActionMode: CREATE_UPDATE
+                RoleArn: !ImportValue cfn-metadata:DevAgentRoleArn
+                Capabilities: CAPABILITY_IAM
+                OutputFileName: bdc-online.dev-outputs.json
+            - Name: S3
+              RoleArn: !ImportValue cfn-metadata:DevAgentRoleArn
+              RunOrder: 2
+              ActionTypeId:
+                Category: Deploy
+                Provider: S3
+                Owner: AWS
+                Version: 1
+              InputArtifacts:
+                - Name: siteFiles
+              Configuration:
+                BucketName: online.dev.brekkedancecenter.com
+                Extract: true
+        - Name: Prod
+          Actions:
+            - Name: Approve
+              ActionTypeId: 
+                Category: Approval
+                Owner: AWS
+                Provider: Manual
+                Version: 1
+              InputArtifacts: []
+              OutputArtifacts: []
+              RunOrder: 1
+            - Name: CloudFormation
+              RunOrder: 2
+              RoleArn: !ImportValue cfn-metadata:ProdAgentRoleArn
+              ActionTypeId:
+                Category: Deploy
+                Provider: CloudFormation
+                Owner: AWS
+                Version: 1
+              InputArtifacts:
+                - Name: buildResults
+              OutputArtifacts:
+                - Name: prodOutputs
+              Configuration:
+                StackName: bdc-online
+                TemplatePath: buildResults::bdc-online.template.yml
+                TemplateConfiguration: buildResults::bdc-online.prod.config.json
+                ActionMode: CREATE_UPDATE
+                RoleArn: !ImportValue cfn-metadata:ProdAgentRoleArn
+                Capabilities: CAPABILITY_IAM
+                OutputFileName: bdc-online.prod-outputs.json
+            - Name: S3
+              RoleArn: !ImportValue cfn-metadata:ProdAgentRoleArn
+              RunOrder: 3
+              ActionTypeId:
+                Category: Deploy
+                Provider: S3
+                Owner: AWS
+                Version: 1
+              InputArtifacts:
+                - Name: siteFiles
+              Configuration:
+                BucketName: online.brekkedancecenter.com
+                Extract: true
+        - Name: DNS
+          Actions:
+            - Name: DNS
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: 1
+              InputArtifacts:
+                - Name: buildResults
+                - Name: devOutputs
+                - Name: prodOutputs
+              Configuration:
+                StackName: bdc-online-dns
+                TemplatePath: buildResults::dns.template.yml
+                ActionMode: CREATE_UPDATE
+                RoleArn: !ImportValue cfn-utilities:MasterRoleArn
+                ParameterOverrides: |
+                  {
+                    "HostedZone": "brekkedancecenter.com.",
+                    "DevDomainName": { "Fn::GetParam": [ "devOutputs", "bdc-online.dev-outputs.json", "DomainName" ] },
+                    "DevAliasTarget": { "Fn::GetParam": [ "devOutputs", "bdc-online.dev-outputs.json", "CloudfrontDomainName" ] },
+                    "ProdDomainName": { "Fn::GetParam": [ "prodOutputs", "bdc-online.prod-outputs.json", "DomainName" ] },
+                    "ProdAliasTarget": { "Fn::GetParam": [ "prodOutputs", "bdc-online.prod-outputs.json", "CloudfrontDomainName" ] }
+                  }
