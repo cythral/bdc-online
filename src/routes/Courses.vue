@@ -23,7 +23,7 @@
             flex-basis: 20%;
             display: flexbox;
             background: #DDD;
-            flex-grow: 0.5;
+            flex-grow: 1;
             text-align: center;
             margin: 15px;
             min-width: 300px;
