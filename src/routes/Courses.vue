@@ -26,6 +26,7 @@
             flex-grow: 0.5;
             text-align: center;
             margin: 15px;
+            min-width: 300px;
             
             a {
                 height: 100%;
