@@ -17,6 +17,7 @@
         margin: 0;
         padding: 0;
         text-align: center;
+        flex-wrap: wrap;
 
         li {
             flex-basis: 20%;
