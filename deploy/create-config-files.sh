@@ -5,5 +5,5 @@ for file in $(find deploy/params -name '*.json'); do
     params=$(cat $file)
 
     config=$(echo {} | jq --argjson params "$params" '.Parameters=$params')
-    echo $config > icons.${envName}.config.json
+    echo $config > bdc-online.${envName}.config.json
 done

@@ -17,8 +17,8 @@ artifacts:
     buildResults:
       discard-paths: yes
       files:
-        - "deploy/bdc-classes.template.yml"
-        - "bdc-classes.*.config.json"
+        - "deploy/bdc-online.template.yml"
+        - "bdc-online.*.config.json"
     siteFiles:
       base-directory: dist
       files:
