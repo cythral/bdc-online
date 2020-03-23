@@ -38,7 +38,7 @@ div {
         background: white;
         z-index: 2;
         width: 50%;
-        min-width: 200px;
+        min-width: 300px;
         height: auto;
         padding: 15px;
         color: $primaryColor;
