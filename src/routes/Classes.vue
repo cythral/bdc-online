@@ -12,7 +12,7 @@
         </div>
 
         <div class="video">
-            <iframe v-if="!!activeClass" v-bind:src="'https://youtube.com/embed/' + activeClass.youtube_id"></iframe>    
+            <iframe v-if="!!activeClass" v-bind:src="'https://youtube.com/embed/' + activeClass.youtube_id" frameBorder="0"></iframe>    
         </div>
     </div>
 </template>
