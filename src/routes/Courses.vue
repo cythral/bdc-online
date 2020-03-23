@@ -29,6 +29,7 @@
             min-width: 300px;
             
             a {
+                display: block;
                 height: 100%;
                 width: 100%;
                 padding: 50px 15px;
