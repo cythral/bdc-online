@@ -71,6 +71,9 @@ div {
             font-size: 12pt;
             padding: 15px 0;
             border: none;
+            -webkit-appearance: none;
+            appearance: none;
+            border-radius: 0;
         }
     }
 }
