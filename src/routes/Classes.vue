@@ -4,11 +4,20 @@
             <router-link to="/courses" class="back">&lt; Back to Courses</router-link>
             
             <h2>{{ course.name }}</h2>
+
+            
+
             <ul>
-                <li v-for="clss in course.classes" :key="clss.id" v-on:click="updateActiveClass(clss)">
+                <li v-for="clss in classes" :key="clss.id" v-on:click="updateActiveClass(clss)">
                     <span>{{ clss.name }}</span>
                 </li>
             </ul>
+
+            <div class="pagination-controls">
+                <a href="#" v-on:click.prevent="prevPage()" v-if="hasPrev" class="prev">&lt; Previous</a>
+                <a href="#" v-on:click.prevent="nextPage()" v-if="hasNext" class="next">Next &gt;</a>
+                <div class="clearfix"></div>
+            </div>
         </div>
 
         <div class="video">
@@ -18,6 +27,7 @@
 </template>
 
 <style scoped lang="scss">
+$linkColor: #2D74F7;
     .container {
         width: calc(100% - 30px);
         background: #DDD;
@@ -51,7 +61,7 @@
                 li {
 
                     span {
-                        color: #2D74F7;
+                        color: $linkColor;
                     }
 
                     &:hover {
@@ -61,6 +71,33 @@
                             text-decoration: underline;
                         }
                     }
+                }
+            }
+
+            .pagination-controls {
+
+                a {
+                    color: $linkColor;
+                    text-decoration: none;
+                    display: inline-block;
+                    width: 50%;
+                    text-align: center;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+
+                    &.prev {
+                        float: left;
+                    }
+
+                    &.next {
+                        float: right;
+                    }
+                }
+
+                .clearfix {
+                    clear: both;
                 }
             }
         }
@@ -86,11 +123,36 @@ import Component from 'vue-class-component';
 
 @Component
 export default class Classes extends Vue {
+    public static readonly INTERVAL: number = 10;
 
     public activeClass: any = null;
 
+    public page: number = 0;
+
+    public hasPrev: boolean = false;
+
+    public hasNext: boolean = true;
+
     public mounted() {
         this.activeClass = this.course.classes[0];
+        this.page = 0;
+        this.recalculatePagination();
+    }
+
+    public recalculatePagination() {
+        this.hasPrev = this.page > 0;
+        this.hasNext = this.course.classes.length > Classes.INTERVAL * (this.page + 1);
+    }
+
+    public prevPage() {
+        this.page--;
+        this.recalculatePagination();
+    }
+
+    public nextPage() {
+        this.page++;
+        this.recalculatePagination();
+        console.log(this.course.classes.slice(10, 10));
     }
 
     public updateActiveClass(clss) {
@@ -100,6 +162,10 @@ export default class Classes extends Vue {
     public get course() {
         const courseId = this.$route.params.courseId;
         return this.$store.state.courses[courseId];
+    }
+
+    public get classes() {
+        return this.course?.classes.slice(this.page * Classes.INTERVAL, this.page * Classes.INTERVAL + Classes.INTERVAL) ?? [];
     }
 }
 </script>
