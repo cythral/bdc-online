@@ -5,8 +5,6 @@
             
             <h2>{{ course.name }}</h2>
 
-            
-
             <ul>
                 <li v-for="clss in classes" :key="clss.id" v-on:click="updateActiveClass(clss)">
                     <span>{{ clss.name }}</span>
@@ -28,6 +26,7 @@
 
 <style scoped lang="scss">
 $linkColor: #2D74F7;
+
     .container {
         width: calc(100% - 30px);
         background: #DDD;
@@ -152,7 +151,6 @@ export default class Classes extends Vue {
     public nextPage() {
         this.page++;
         this.recalculatePagination();
-        console.log(this.course.classes.slice(10, 10));
     }
 
     public updateActiveClass(clss) {
