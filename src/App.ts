@@ -21,7 +21,7 @@ function notifyParentOfResize() {
     parent.postMessage({ height }, '*');
 }
 
-notifyParentOfResize();
+window.addEventListener('load', notifyParentOfResize);
 window.addEventListener('resize', notifyParentOfResize);
 
 Router.beforeResolve((to, from, next) => {
