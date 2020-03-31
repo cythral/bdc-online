@@ -7,13 +7,22 @@ import VueRouter from "vue-router";
 import Vuex from 'vuex';
 import Router from "./Router";
 import Store from './Store';
-import { sync } from 'vue-router-sync';
 
 Vue.use(VueRouter);
 Vue.use(Vuex);
 Vue.component('password-dialog', PasswordDialog);
 
-Store.commit('reset');
+function notifyParentOfResize() {
+    if(!('parent' in window)) {
+        return;
+    }
+
+    const height = document.body.scrollHeight;
+    parent.postMessage({ height }, '*');
+}
+
+notifyParentOfResize();
+window.addEventListener('resize', notifyParentOfResize);
 
 Router.beforeResolve((to, from, next) => {
     const matched = Router.getMatchedComponents(to) as any[];
