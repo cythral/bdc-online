@@ -13,6 +13,7 @@ Vue.use(Vuex);
 Vue.component('password-dialog', PasswordDialog);
 
 function notifyParentOfResize() {
+    console.log(document.body.scrollHeight);
     if(!('parent' in window)) {
         return;
     }
@@ -42,5 +43,8 @@ Router.beforeResolve((to, from, next) => {
 new Vue({
     el: '#container',
     router: Router,
-    store: Store
+    store: Store,
+    updated: function() {
+        this.$nextTick(notifyParentOfResize);
+    }
 });
