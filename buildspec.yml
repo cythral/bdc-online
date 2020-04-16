@@ -20,6 +20,7 @@ artifacts:
         - "deploy/bdc-online.template.yml"
         - "deploy/dns.template.yml"
         - "bdc-online.*.config.json"
+        - "dns.config.json"
     siteFiles:
       base-directory: dist
       files:
