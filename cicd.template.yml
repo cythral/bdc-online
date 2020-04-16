@@ -210,6 +210,7 @@ Resources:
               Configuration:
                 StackName: bdc-online-dns
                 TemplatePath: buildResults::dns.template.yml
+                TemplateConfiguration: buildResults::dns.config.json
                 ActionMode: CREATE_UPDATE
                 RoleArn: !ImportValue cfn-utilities:MasterRoleArn
                 ParameterOverrides: |
