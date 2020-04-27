@@ -46,6 +46,17 @@ Resources:
   CloudfrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
+      Tags:
+        - Key: Name
+          Value: Brekke Dance Center Online
+        - Key: Owner
+          Value: Cythral
+        - Key: OwnerContact
+          Value: Talen Fisher
+        - Key: Customer
+          Value: Brekke Dance Center
+        - Key: CustomerContact
+          Value: Paula Brekke
       DistributionConfig:
         Aliases:
           - !Ref DomainName
