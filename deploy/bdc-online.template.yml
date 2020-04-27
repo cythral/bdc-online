@@ -19,7 +19,7 @@ Resources:
               - HEAD
             AllowedOrigins:
               - "https://brekkedancecenter.com"
-  
+
   BucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -46,7 +46,6 @@ Resources:
   CloudfrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
-      Tags: []
       DistributionConfig:
         Aliases:
           - !Ref DomainName
