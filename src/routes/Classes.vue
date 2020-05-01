@@ -130,12 +130,10 @@ $linkColor: #2D74F7;
 
                     &.prev {
                         float: left;
-                        text-align: left;
                     }
 
                     &.next {
                         float: right;
-                        text-align: right;
                     }
                 }
 
