@@ -13,6 +13,13 @@
             <ul>
                 <li v-for="clss in classes" :key="clss.id" v-on:click="updateActiveClass(clss)">
                     <span>{{ clss.name }}</span>
+                    
+                    <span v-if="clss.live_link">
+                        <a v-bind:href="clss.live_link" target="_blank">
+                            <font-awesome-icon icon="video"></font-awesome-icon>
+                            Live
+                        </a>
+                    </span>
                 </li>
             </ul>
 
@@ -75,20 +82,36 @@ $linkColor: #2D74F7;
 
             ul {
                 padding: 15px;
+                padding-left: 0;
+                list-style-type: none;
 
                 li {
+                    margin-bottom: 15px;
 
                     span {
                         color: $linkColor;
-                    }
-
-                    &:hover {
-                        cursor: pointer;
                         
-                        span {
+                        &:nth-child(1):hover {
+                            cursor: pointer;
                             text-decoration: underline;
                         }
+
+                        a {
+                            color: $linkColor;
+                            text-decoration: none;
+                            font-size: 0.8em;
+                            padding-left: 10px;
+
+                            &:hover {
+                                color: darken($linkColor, 20%);
+                            }
+                        }
                     }
+
+                    div {
+                        padding-left: 15px;
+                    }
+
                 }
             }
 
@@ -107,10 +130,12 @@ $linkColor: #2D74F7;
 
                     &.prev {
                         float: left;
+                        text-align: left;
                     }
 
                     &.next {
                         float: right;
+                        text-align: right;
                     }
                 }
 
