@@ -7,10 +7,17 @@ import VueRouter from "vue-router";
 import Vuex from 'vuex';
 import Router from "./Router";
 import Store from './Store';
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faUserSecret, faVideo } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+library.add(faUserSecret);
+library.add(faVideo);
 
 Vue.use(VueRouter);
 Vue.use(Vuex);
 Vue.component('password-dialog', PasswordDialog);
+Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 function notifyParentOfResize() {
     console.log(document.body.scrollHeight);

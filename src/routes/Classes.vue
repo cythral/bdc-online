@@ -5,6 +5,11 @@
             
             <h2>{{ course.name }}</h2>
 
+            <a class="live" v-bind:href="course.live_link" v-if="course.live_link">
+                <font-awesome-icon icon="video"></font-awesome-icon>
+                Live Class
+            </a>
+
             <ul>
                 <li v-for="clss in classes" :key="clss.id" v-on:click="updateActiveClass(clss)">
                     <span>{{ clss.name }}</span>
@@ -26,7 +31,6 @@
 
 <style scoped lang="scss">
 $linkColor: #2D74F7;
-
     .container {
         width: calc(100% - 30px);
         background: #DDD;
@@ -35,6 +39,21 @@ $linkColor: #2D74F7;
         display: flex;
         align-items: stretch;
         flex-wrap: wrap;
+
+        .live {
+            text-decoration: none;
+            background-color: #CCC;   
+            display: block;
+            padding: 15px;
+            margin: 15px 0;
+            color: black;
+            transition: background-color .2s, color .2s;
+
+            &:hover {
+                background-color: #2D74F7;
+                color: white;
+            }
+        }
 
         .details {
             flex-basis: 30%;
