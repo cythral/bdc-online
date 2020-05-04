@@ -1,3 +1,4 @@
+Description: Frontend to the BDC Classes content management system.
 Parameters:
   DomainName:
     Type: String
