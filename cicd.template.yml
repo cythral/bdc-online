@@ -336,4 +336,4 @@ Resources:
 
           # Shared SSO
           SharedGoogleClientId: !ImportValue sso-aws-registry:SharedGoogleClientId
-          SharedIdentityPoolId: !ImportValue sso-aws-registry:SharedIdentityPoolId
+          SharedIdentityPoolId: !ImportValue sso-aws-registry:SharedIdentityPoolId 
