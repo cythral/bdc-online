@@ -187,10 +187,6 @@ Resources:
                       "GithubOwner": "${GithubOwner}",
                       "GithubRepository": "${GithubRepo}",
                       "GithubRef.$": "$.head_commit.id"
-                    },
-                    "SsoConfig": {
-                      "GoogleClientId": "${DevGoogleClientId}",
-                      "IdentityPoolId": "${DevIdentityPoolId}"
                     }
                   }
                 },
@@ -257,10 +253,6 @@ Resources:
                       "GithubOwner": "${GithubOwner}",
                       "GithubRepository": "${GithubRepo}",
                       "GithubRef.$": "$.head_commit.id"
-                    },
-                    "SsoConfig": {
-                      "GoogleClientId": "${ProdGoogleClientId}",
-                      "IdentityPoolId": "${ProdIdentityPoolId}"
                     }
                   }
                 },
@@ -303,10 +295,6 @@ Resources:
                       "GithubOwner": "${GithubOwner}",
                       "GithubRepository": "${GithubRepo}",
                       "GithubRef.$": "$.head_commit.id"
-                    },
-                    "SsoConfig": {
-                      "GoogleClientId": "${SharedGoogleClientId}",
-                      "IdentityPoolId": "${SharedIdentityPoolId}"
                     }
                   }
                 },
@@ -325,15 +313,3 @@ Resources:
           # Function ARNs
           ApprovalNotificationFunction: cfn-core-ApprovalNotificationFunction-14V53I9N6Z2YZ
           S3DeploymentFunctionArn: !ImportValue cfn-core:S3DeploymentFunctionArn
-
-          # Dev SSO
-          DevGoogleClientId: !ImportValue sso-aws-registry:DevGoogleClientId
-          DevIdentityPoolId: !ImportValue sso-aws-registry:DevIdentityPoolId
-
-          # Prod SSO
-          ProdGoogleClientId: !ImportValue sso-aws-registry:ProdGoogleClientId
-          ProdIdentityPoolId: !ImportValue sso-aws-registry:ProdIdentityPoolId
-
-          # Shared SSO
-          SharedGoogleClientId: !ImportValue sso-aws-registry:SharedGoogleClientId
-          SharedIdentityPoolId: !ImportValue sso-aws-registry:SharedIdentityPoolId 
