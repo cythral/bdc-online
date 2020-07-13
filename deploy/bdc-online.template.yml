@@ -41,8 +41,7 @@ Resources:
           - Effect: Allow
             Principal:
               CanonicalUser: !GetAtt CloudfrontIdentity.S3CanonicalUserId
-            Action:
-              Action: s3:ListBucket
+            Action: s3:ListBucket
             Resource: !Sub arn:aws:s3:::${Bucket}
           - Effect: Allow
             Principal:
