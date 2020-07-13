@@ -16,6 +16,13 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Ref DomainName
+      LifecycleConfiguration:
+        Rules:
+          - Status: Enabled
+            ExpirationInDays: 1
+            TagFilters:
+              - Key: dirty
+                Value: "true"
       CorsConfiguration:
         CorsRules:
           - AllowedMethods:
@@ -34,12 +41,17 @@ Resources:
           - Effect: Allow
             Principal:
               CanonicalUser: !GetAtt CloudfrontIdentity.S3CanonicalUserId
-            Action: 
-              - s3:ListBucket
-              - s3:GetObject
-            Resource: 
-              - !Sub arn:aws:s3:::${Bucket}
-              - !Sub arn:aws:s3:::${Bucket}/*
+            Action:
+              Action: s3:ListBucket
+            Resource: !Sub arn:aws:s3:::${Bucket}
+          - Effect: Allow
+            Principal:
+              CanonicalUser: !GetAtt CloudfrontIdentity.S3CanonicalUserId
+            Action: s3:GetObject
+            Resource: !Sub arn:aws:s3:::${Bucket}/*
+            Condition:
+              StringNotEquals:
+                s3:ExistingObjectTag/dirty: "true"
 
   CloudfrontIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
@@ -61,7 +73,7 @@ Resources:
           - ErrorCode: 404
             ResponseCode: 200
             ResponsePagePath: /index.html
-        ViewerCertificate: 
+        ViewerCertificate:
           AcmCertificateArn: !Ref SSLCertificate
           SslSupportMethod: sni-only
         DefaultCacheBehavior:
@@ -76,7 +88,7 @@ Resources:
         Origins:
           - Id: primary
             DomainName: !GetAtt Bucket.DomainName
-            S3OriginConfig: 
+            S3OriginConfig:
               OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${CloudfrontIdentity}
 
   SSLCertificate:
